@@ -1,7 +1,7 @@
 package com.evolutiongaming.prometheus
 
 trait HasObserve[F] {
-  def observe(duration: Double): Unit
+  def observe(observer: F, duration: Double): Unit
 }
 
 object HasObserve {

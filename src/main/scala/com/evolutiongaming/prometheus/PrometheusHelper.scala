@@ -9,15 +9,13 @@ import scala.language.implicitConversions
 object PrometheusHelper {
   private implicit val ec = CurrentThreadExecutionContext
 
-  implicit def histogram(histogram: Histogram): HasObserve[Histogram] = (duration: Double) => histogram.observe(duration)
+  implicit val histogramObs: HasObserve[Histogram] = (histogram: Histogram, duration: Double) => histogram.observe(duration)
 
-  implicit def histogramChild(
-    child: Histogram.Child
-  ): HasObserve[Histogram.Child] = (duration: Double) => child.observe(duration)
+  implicit val histogramChildObs: HasObserve[Histogram.Child] = (child: Histogram.Child, duration: Double) => child.observe(duration)
 
-  implicit def summary(summary: Summary): HasObserve[Summary] = (duration: Double) => summary.observe(duration)
+  implicit val summaryObs: HasObserve[Summary] = (summary: Summary, duration: Double) => summary.observe(duration)
 
-  implicit def summaryChild(child: Summary.Child): HasObserve[Summary.Child] = (duration: Double) => child.observe(duration)
+  implicit val summaryChildObs: HasObserve[Summary.Child] = (child: Summary.Child, duration: Double) => child.observe(duration)
 
   implicit class GaugeOps(val gauge: Gauge) extends AnyVal {
 
@@ -62,7 +60,7 @@ object PrometheusHelper {
     }
   }
 
-  implicit def observeDuration[F](implicit hasObserve: HasObserve[F]): ObserveDuration[F] =
+  implicit def observeDuration[F](observer: F)(implicit hasObserve: HasObserve[F]): ObserveDuration[F] =
     new ObserveDuration[F] {
 
       override def timeFunc[T](f: => T): T =
@@ -90,11 +88,11 @@ object PrometheusHelper {
       override def timeTillNow[T](
         start: T
       )(implicit numeric: Numeric[T]): Unit =
-        hasObserve.observe(duration(start, System.currentTimeMillis()))
+        hasObserve.observe(observer, duration(start, System.currentTimeMillis()))
 
       override def timeTillNowNanos[T](start: T)(
         implicit numeric: Numeric[T]
-      ): Unit = hasObserve.observe(duration(start, System.nanoTime()))
+      ): Unit = hasObserve.observe(observer, duration(start, System.nanoTime()))
     }
 
   private def duration[A](start: A, now: Long)(implicit a: Numeric[A]): Double = {
@@ -111,5 +109,5 @@ object PrometheusHelper {
         .quantile(0.99, 0.005)
     }
   }
-  
+
 }
