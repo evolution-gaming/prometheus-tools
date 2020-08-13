@@ -17,26 +17,25 @@ scalaVersion := "2.12.4"
 crossScalaVersions := Seq("2.12.12", "2.13.3")
 
 scalacOptions ++= Seq(
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-feature",
   "-unchecked",
   "-deprecation",
   "-Xfatal-warnings",
   "-Xlint",
-  "-Yno-adapted-args",
   "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Xfuture"
-)
+  "-Ywarn-numeric-widen"
+) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
+  case Some((2, n)) if n >= 13 => Seq.empty
+  case _                       => Seq("-Yno-adapted-args", "-Xfuture")
+})
 
-scalacOptions in(Compile, doc) ++= Seq("-groups", "-implicits", "-no-link-warnings")
+scalacOptions in (Compile, doc) ++= Seq("-groups", "-implicits", "-no-link-warnings")
 
 resolvers += Resolver.bintrayRepo("evolutiongaming", "maven")
 
-libraryDependencies ++= Seq(
-  "com.evolutiongaming" %% "executor-tools" % "1.0.0",
-  "io.prometheus" % "simpleclient_common" % "0.0.26",
-  "org.scalatest" %% "scalatest" % "3.0.5" % Test)
+libraryDependencies ++= Seq("com.evolutiongaming" %% "executor-tools" % "1.0.2", "io.prometheus" % "simpleclient_common" % "0.0.26")
 
 licenses := Seq(("MIT", url("https://opensource.org/licenses/MIT")))
 
