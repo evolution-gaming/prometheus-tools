@@ -9,23 +9,15 @@ import scala.language.implicitConversions
 object PrometheusHelper {
   private implicit val ec = CurrentThreadExecutionContext
 
-  implicit def histogram(histogram: Histogram): HasObserve[Histogram] = new HasObserve[Histogram] {
-    override def observe(duration: Double): Unit = histogram.observe(duration)
-  }
+  implicit def histogram(histogram: Histogram): HasObserve[Histogram] = (duration: Double) => histogram.observe(duration)
 
   implicit def histogramChild(
     child: Histogram.Child
-  ): HasObserve[Histogram.Child] = new HasObserve[Histogram.Child] {
-    override def observe(duration: Double): Unit = child.observe(duration)
-  }
+  ): HasObserve[Histogram.Child] = (duration: Double) => child.observe(duration)
 
-  implicit def summary(summary: Summary): HasObserve[Summary] = new HasObserve[Summary] {
-    override def observe(duration: Double): Unit = summary.observe(duration)
-  }
+  implicit def summary(summary: Summary): HasObserve[Summary] = (duration: Double) => summary.observe(duration)
 
-  implicit def summaryChild(child: Summary.Child): HasObserve[Summary.Child] = new HasObserve[Summary.Child] {
-    override def observe(duration: Double): Unit = child.observe(duration)
-  }
+  implicit def summaryChild(child: Summary.Child): HasObserve[Summary.Child] = (duration: Double) => child.observe(duration)
 
   implicit class GaugeOps(val gauge: Gauge) extends AnyVal {
 
@@ -108,4 +100,16 @@ object PrometheusHelper {
   private def duration[A](start: A, now: Long)(implicit a: Numeric[A]): Double = {
     now.toDouble - a.toDouble(start)
   }
+
+  implicit class RichSummaryBuilder(val summaryBuilder: Summary.Builder) extends AnyVal {
+
+    def defaultQuantiles(): Summary.Builder = {
+      summaryBuilder
+        .quantile(0.5, 0.05)
+        .quantile(0.9, 0.05)
+        .quantile(0.95, 0.01)
+        .quantile(0.99, 0.005)
+    }
+  }
+  
 }
