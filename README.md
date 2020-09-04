@@ -5,5 +5,5 @@
 ```scala
 resolvers += Resolver.bintrayRepo("evolutiongaming", "maven")
 
-libraryDependencies += "com.evolutiongaming" %% "prometheus-tools" % "1.0.3"
+libraryDependencies += "com.evolutiongaming" %% "prometheus-tools" % "1.0.4"
 ```
