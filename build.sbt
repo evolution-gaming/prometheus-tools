@@ -35,7 +35,13 @@ scalacOptions in (Compile, doc) ++= Seq("-groups", "-implicits", "-no-link-warni
 
 resolvers += Resolver.bintrayRepo("evolutiongaming", "maven")
 
-libraryDependencies ++= Seq("com.evolutiongaming" %% "executor-tools" % "1.0.2", "io.prometheus" % "simpleclient_common" % "0.0.26")
+libraryDependencies ++= Seq(
+  "com.evolutiongaming" %% "executor-tools"     % "1.0.2",
+  "io.prometheus"       % "simpleclient_common" % "0.0.26",
+  "org.scalameta"       %% "munit"              % "0.7.12" % Test
+)
+
+testFrameworks += new TestFramework("munit.Framework")
 
 licenses := Seq(("MIT", url("https://opensource.org/licenses/MIT")))
 

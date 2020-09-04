@@ -30,3 +30,6 @@ jobs:
 
       - name: Build ${{ matrix.scala }}
         run: sbt ++${{ matrix.scala }} clean compile
+
+      - name: Run tests ${{ matrix.scala }}
+        run: sbt ++${{ matrix.scala }} clean test
