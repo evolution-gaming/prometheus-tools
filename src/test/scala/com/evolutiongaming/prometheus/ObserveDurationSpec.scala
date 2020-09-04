@@ -1,8 +1,11 @@
 package com.evolutiongaming.prometheus
 
+import com.evolutiongaming.concurrent.CurrentThreadExecutionContext
 import io.prometheus.client.Collector
 
 class ObserveDurationSpec extends munit.FunSuite with munit.Assertions {
+
+  private implicit val ec    = CurrentThreadExecutionContext
 
   def cmp(x: Double, y: Double): Boolean = Math.abs(x - y) <= 0.000000001
 
