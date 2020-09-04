@@ -7,7 +7,8 @@ import scala.concurrent.Future
 import scala.language.implicitConversions
 
 object PrometheusHelper {
-  private implicit val ec = CurrentThreadExecutionContext
+  private implicit val ec    = CurrentThreadExecutionContext
+  private implicit val clock = ClockPlatform.default
 
   implicit val histogramObs: HasObserve[Histogram] = (histogram: Histogram, duration: Double) => histogram.observe(duration)
 
@@ -60,44 +61,7 @@ object PrometheusHelper {
     }
   }
 
-  implicit def observeDuration[F](observer: F)(implicit hasObserve: HasObserve[F]): ObserveDuration[F] =
-    new ObserveDuration[F] {
-
-      override def timeFunc[T](f: => T): T =
-        measureFunction(f, System.currentTimeMillis(), timeTillNow[Long])
-
-      override def timeFuncNanos[T](f: => T): T =
-        measureFunction(f, System.nanoTime(), timeTillNowNanos[Long])
-
-      private def measureFunction[A](f: => A, start: Long, measurer: Long => Unit): A =
-        try f
-        finally measurer(start)
-
-      override def timeFuture[T](f: => Future[T]): Future[T] =
-        measureFuture(f, System.currentTimeMillis(), timeTillNow[Long])
-
-      override def timeFutureNanos[T](f: => Future[T]): Future[T] =
-        measureFuture(f, System.nanoTime(), timeTillNowNanos[Long])
-
-      private def measureFuture[A](
-        f: => Future[A],
-        start: Long,
-        measurer: Long => Unit
-      ): Future[A] = f andThen { case _ => measurer(start) }
-
-      override def timeTillNow[T](
-        start: T
-      )(implicit numeric: Numeric[T]): Unit =
-        hasObserve.observe(observer, duration(start, System.currentTimeMillis()))
-
-      override def timeTillNowNanos[T](start: T)(
-        implicit numeric: Numeric[T]
-      ): Unit = hasObserve.observe(observer, duration(start, System.nanoTime()))
-    }
-
-  private def duration[A](start: A, now: Long)(implicit a: Numeric[A]): Double = {
-    now.toDouble - a.toDouble(start)
-  }
+  implicit def observeDuration[F](observer: F)(implicit hasObserve: HasObserve[F]): ObserveDuration[F] = ObserveDuration.fromHasObserver(observer)
 
   implicit class RichSummaryBuilder(val summaryBuilder: Summary.Builder) extends AnyVal {
 
