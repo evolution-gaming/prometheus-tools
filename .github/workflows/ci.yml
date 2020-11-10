@@ -1,6 +1,6 @@
 name: CI
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
   test:
@@ -10,26 +10,26 @@ jobs:
     strategy:
       matrix:
         scala:
-          - 2.12.12
           - 2.13.3
+          - 2.12.12
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache SBT
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
+      - uses: coursier/cache-action@v3
 
-      - uses: olafurpg/setup-scala@v5
+      - name: scala
+        uses: olafurpg/setup-scala@v10
         with:
           java-version: openjdk@1.11
 
-      - name: Build ${{ matrix.scala }}
-        run: sbt ++${{ matrix.scala }} clean compile
-
-      - name: Run tests ${{ matrix.scala }}
+      - name: build ${{ matrix.scala }}
         run: sbt ++${{ matrix.scala }} clean test
+
+      - name: slack
+        uses: homoluctus/slatify@master
+        if: failure() && github.ref == 'refs/heads/master'
+        with:
+          type: ${{ job.status }}
+          job_name: Build
+          url: ${{ secrets.SLACK_WEBHOOK }}

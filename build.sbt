@@ -12,9 +12,9 @@ organizationHomepage := Some(url("http://evolutiongaming.com"))
 
 bintrayOrganization := Some("evolutiongaming")
 
-scalaVersion := "2.12.4"
+crossScalaVersions := Seq("2.13.3", "2.12.12")
 
-crossScalaVersions := Seq("2.12.12", "2.13.3")
+scalaVersion := crossScalaVersions.value.head
 
 scalacOptions ++= Seq(
   "-encoding",
@@ -37,7 +37,7 @@ resolvers += Resolver.bintrayRepo("evolutiongaming", "maven")
 
 libraryDependencies ++= Seq(
   "com.evolutiongaming" %% "executor-tools"     % "1.0.2",
-  "io.prometheus"       % "simpleclient_common" % "0.0.26",
+  "io.prometheus"       % "simpleclient_common" % "0.8.0",
   "org.scalameta"       %% "munit"              % "0.7.12" % Test
 )
 
