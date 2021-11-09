@@ -4,7 +4,6 @@ import com.evolutiongaming.concurrent.CurrentThreadExecutionContext
 import io.prometheus.client.{Gauge, Histogram, SimpleCollector, Summary}
 
 import scala.concurrent.Future
-import scala.language.implicitConversions
 
 object PrometheusHelper {
   private implicit val ec    = CurrentThreadExecutionContext
@@ -67,9 +66,7 @@ object PrometheusHelper {
 
     def defaultQuantiles(): Summary.Builder = {
       summaryBuilder
-        .quantile(0.5, 0.05)
         .quantile(0.9, 0.05)
-        .quantile(0.95, 0.01)
         .quantile(0.99, 0.005)
     }
   }
