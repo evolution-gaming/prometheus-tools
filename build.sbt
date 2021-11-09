@@ -29,3 +29,5 @@ testFrameworks += new TestFramework("munit.Framework")
 licenses := Seq(("MIT", url("https://opensource.org/licenses/MIT")))
 
 releaseCrossBuild := true
+
+ThisBuild / versionScheme := Some("semver-spec")
