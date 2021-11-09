@@ -6,11 +6,9 @@ homepage := Some(new URL("http://github.com/evolution-gaming/prometheus-tools"))
 
 startYear := Some(2018)
 
-organizationName := "Evolution Gaming"
+organizationName := "Evolution"
 
-organizationHomepage := Some(url("http://evolutiongaming.com"))
-
-bintrayOrganization := Some("evolutiongaming")
+organizationHomepage := Some(url("http://evolution.com"))
 
 crossScalaVersions := Seq("2.13.3", "2.12.12")
 
