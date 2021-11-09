@@ -16,7 +16,7 @@ scalaVersion := crossScalaVersions.value.head
 
 scalacOptions in (Compile, doc) ++= Seq("-groups", "-implicits", "-no-link-warnings")
 
-resolvers += Resolver.bintrayRepo("evolutiongaming", "maven")
+publishTo := Some(Resolver.evolutionReleases)
 
 libraryDependencies ++= Seq(
   "com.evolutiongaming" %% "executor-tools"     % "1.0.3",
