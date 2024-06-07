@@ -10,16 +10,18 @@ organizationName := "Evolution"
 
 organizationHomepage := Some(url("http://evolution.com"))
 
-crossScalaVersions := Seq("2.13.7", "2.12.15")
+crossScalaVersions := Seq("2.13.7", "2.12.15", "3.3.3")
 
 scalaVersion := crossScalaVersions.value.head
+
+Compile / scalacOptions ++= Seq("-language:implicitConversions")
 
 Compile / doc / scalacOptions ++= Seq("-groups", "-implicits", "-no-link-warnings")
 
 publishTo := Some(Resolver.evolutionReleases)
 
 libraryDependencies ++= Seq(
-  "com.evolutiongaming" %% "executor-tools"     % "1.0.3",
+  "com.evolutiongaming" %% "executor-tools"     % "1.0.4",
   "io.prometheus"       % "simpleclient_common" % "0.8.1",
   "org.scalameta"       %% "munit"              % "0.7.29" % Test
 )

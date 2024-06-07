@@ -3,11 +3,11 @@ package com.evolutiongaming.prometheus
 import com.evolutiongaming.concurrent.CurrentThreadExecutionContext
 import io.prometheus.client.{Gauge, Histogram, SimpleCollector, Summary}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 object PrometheusHelper {
-  private implicit val ec    = CurrentThreadExecutionContext
-  private implicit val clock = ClockPlatform.default
+  private implicit val ec: ExecutionContext = CurrentThreadExecutionContext
+  private implicit val clock: ClockPlatform = ClockPlatform.default
 
   implicit val histogramObs: HasObserve[Histogram] = (histogram: Histogram, duration: Double) => histogram.observe(duration)
 
