@@ -33,3 +33,5 @@ licenses := Seq(("MIT", url("https://opensource.org/licenses/MIT")))
 releaseCrossBuild := true
 
 ThisBuild / versionScheme := Some("semver-spec")
+
+addCommandAlias("check", "all scalafmtCheckAll scalafmtSbtCheck")
