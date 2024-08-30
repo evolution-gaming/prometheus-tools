@@ -1,12 +1,21 @@
 package com.evolutiongaming.prometheus
 
-import com.evolutiongaming.concurrent.CurrentThreadExecutionContext
 import io.prometheus.client.{Gauge, Histogram, SimpleCollector, Summary}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.math.Numeric.Implicits.*
 
+/** Main entry point for prometheus-tools goodies, mainly extension method for prometheus client classes.
+  *
+  * Usage:
+  * {{{
+  *   import com.evolutiongaming.prometheus.PrometheusHelper.*
+  * }}}
+  *
+  * @see
+  *   [[ObserveDuration]]
+  */
 object PrometheusHelper {
-  private implicit val ec: ExecutionContext = CurrentThreadExecutionContext
   private implicit val clock: ClockPlatform = ClockPlatform.default
 
   implicit val histogramObs: HasObserve[Histogram] = (histogram: Histogram, duration: Double) => histogram.observe(duration)
@@ -19,15 +28,42 @@ object PrometheusHelper {
 
   implicit class GaugeOps(val gauge: Gauge) extends AnyVal {
 
-    def collect[T](f: => T)(implicit numeric: Numeric[T]): Gauge = {
+    def collect[T: Numeric](f: => T): Gauge = {
       val child = new Gauge.Child() {
-        override def get() = numeric.toDouble(f)
+        override def get(): Double = f.toDouble
       }
       gauge.setChild(child)
     }
   }
 
-  implicit class TemporalOps[A: ObserveDuration](val a: A) {
+  /*
+  TODO: bincompat leftover, remove in 2.x
+
+  Without this magic method MiMa complained:
+  static method TemporalOps(java.lang.Object,com.evolutiongaming.prometheus.ObserveDuration)com.evolutiongaming.prometheus.PrometheusHelper#TemporalOps
+  in class com.evolutiongaming.prometheus.PrometheusHelper does not have a correspondent in current version
+
+  The visibility also has to be public, otherwise scalac does not reliably generate static method for both 2.13 and 3
+   */
+  @deprecated(
+    message = "referencing TemporalOps directly is deprecated, use implicit syntax",
+    since = "1.1.0"
+  )
+  def TemporalOps[A](
+    v1: A,
+    v2: com.evolutiongaming.prometheus.ObserveDuration[A]
+  ): com.evolutiongaming.prometheus.PrometheusHelper.TemporalOps[A] = new TemporalOps[A](v1)(v2)
+
+  /*
+  TODO: bincompat leftover, remove in 2.x
+
+  TemporalOps wasn't needed to provide ObserveDuration syntax, should be removed - see PrometheusHelperSpec
+   */
+  @deprecated(
+    message = "referencing TemporalOps directly is deprecated, use implicit syntax",
+    since = "1.1.0"
+  )
+  private[prometheus] class TemporalOps[A: ObserveDuration](val a: A) {
 
     def timeFunc[T](f: => T): T = ObserveDuration[A].timeFunc(f)
 
@@ -46,7 +82,7 @@ object PrometheusHelper {
       ObserveDuration[A].timeTillNowNanos(start)
   }
 
-  implicit class BuilderOps[C <: SimpleCollector[_], B <: SimpleCollector.Builder[
+  implicit class BuilderOps[C <: SimpleCollector[?], B <: SimpleCollector.Builder[
     B,
     C
   ]](val self: B)
@@ -60,7 +96,8 @@ object PrometheusHelper {
     }
   }
 
-  implicit def observeDuration[F](observer: F)(implicit hasObserve: HasObserve[F]): ObserveDuration[F] = ObserveDuration.fromHasObserver(observer)
+  implicit def observeDuration[F](observer: F)(implicit hasObserve: HasObserve[F]): ObserveDuration[F] =
+    ObserveDuration.create(observer)
 
   implicit class RichSummaryBuilder(val summaryBuilder: Summary.Builder) extends AnyVal {
 

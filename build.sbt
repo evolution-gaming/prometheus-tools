@@ -28,6 +28,8 @@ Compile / doc / scalacOptions ++= Seq("-groups", "-implicits", "-no-link-warning
 publishTo := Some(Resolver.evolutionReleases)
 
 libraryDependencies ++= Seq(
+  // executor-tools dependency is not used anymore, left as is so MiMa bincompat report doesn't complain
+  // TODO: remove in 2.x
   "com.evolutiongaming" %% "executor-tools"      % "1.0.4",
   "io.prometheus"        % "simpleclient_common" % "0.8.1",
   "org.scalameta"       %% "munit"               % "1.0.0" % Test
