@@ -51,8 +51,8 @@ object ObserveDuration {
         hasObserve.observe(observer, value)
       }
 
-      override def timeTillNowNanos[T](start: T)(
-        implicit numeric: Numeric[T]
+      override def timeTillNowNanos[T](start: T)(implicit
+        numeric: Numeric[T]
       ): Unit = {
         val value = duration(start, clock.nowNano) / Collector.NANOSECONDS_PER_SECOND
         hasObserve.observe(observer, value)
