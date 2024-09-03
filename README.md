@@ -10,5 +10,5 @@
 ```scala
 addSbtPlugin("com.evolution" % "sbt-artifactory-plugin" % "0.0.2")
 
-libraryDependencies += "com.evolutiongaming" %% "prometheus-tools" % "1.0.8"
+libraryDependencies += "com.evolutiongaming" %% "prometheus-tools" % "1.1.0"
 ```
